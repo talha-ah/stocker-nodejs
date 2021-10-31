@@ -43,6 +43,21 @@ const MSchema = new Schema(
     country: {
       type: String,
     },
+    description: {
+      trim: true,
+      type: String,
+    },
+    balance: {
+      value: {
+        type: Number,
+        default: 0,
+      },
+      unit: {
+        type: String,
+        default: "PKR",
+        enum: ["PKR", "USD"],
+      },
+    },
     role: {
       trim: true,
       type: String,

@@ -35,6 +35,16 @@ const errors = {
   categoryIdLength: "Category ID should be 24 characters",
   categoryNameRequired: "Category name is required",
   categoryNotFound: "Category not found",
+
+  // Stock
+  stockNotFound: "Stock not found",
+  stockIdRequired: "Stock ID is required",
+  stockIdLength: "Stock ID should be 24 characters",
+  stockCostPriceRequired: "Stock cost price is required",
+  stockSalePriceRequired: "Stock sale price is required",
+  stockInventoryRequired: "Stock inventory is required",
+  stockLocationRequired: "Stock location is required",
+  stockCodeRequired: "Stock code is required",
 }
 
 const texts = {

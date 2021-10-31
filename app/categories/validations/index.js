@@ -6,7 +6,7 @@ const { joiError } = require("../../../utils/joiError")
 const schemas = {
   checkId: (data) => {
     const Validation = Joi.object().keys({
-      categoryId: Joi.string().length(24).required().messages({
+      id: Joi.string().length(24).required().messages({
         "string.length": errors.categoryIdLength,
         "string.empty": errors.categoryIdRequired,
         "any.required": errors.categoryIdRequired,
@@ -27,7 +27,7 @@ const schemas = {
   },
   updateOne: (data) => {
     const Validation = Joi.object().keys({
-      categoryId: Joi.string().length(24).required().messages({
+      id: Joi.string().length(24).required().messages({
         "string.length": errors.categoryIdLength,
         "string.empty": errors.categoryIdRequired,
         "any.required": errors.categoryIdRequired,

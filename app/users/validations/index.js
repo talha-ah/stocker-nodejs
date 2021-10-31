@@ -30,6 +30,7 @@ const schemas = {
         }),
       phone: Joi.string().optional().allow("").messages({}),
       address_one: Joi.string().optional().allow(""),
+      description: Joi.string().optional().allow(""),
     })
 
     return joiError(Validation.validate(data))
@@ -54,6 +55,7 @@ const schemas = {
         }),
       phone: Joi.string().optional().allow("").messages({}),
       address_one: Joi.string().optional().allow(""),
+      description: Joi.string().optional().allow(""),
     })
 
     return joiError(Validation.validate(data))
