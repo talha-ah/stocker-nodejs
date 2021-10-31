@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
-const userSchema = new Schema(
+const MSchema = new Schema(
   {
     first_name: {
       trim: true,
@@ -39,4 +39,4 @@ const userSchema = new Schema(
   { versionKey: false, timestamps: true }
 )
 
-module.exports = mongoose.model("user", userSchema)
+module.exports = mongoose.model("user", MSchema)

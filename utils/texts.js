@@ -29,9 +29,17 @@ const errors = {
   inactiveAccount: "Your account is not active! Kindly contact support!",
   alreadyVerified: "Account is already verified",
   notAuthorized: "Not authorized",
+
+  // Category
+  categoryIdRequired: "Category ID is required",
+  categoryIdLength: "Category ID should be 24 characters",
+  categoryNameRequired: "Category name is required",
+  categoryNotFound: "Category not found",
 }
 
 const texts = {
+  success: "Success",
+
   allUsers: "All users",
   userData: "User data",
   userCreated: "User created",
