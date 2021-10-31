@@ -5,6 +5,8 @@ const Model = require("../models")
 
 class Service {
   async getAll(data) {
+    data.search = data.search || ""
+
     const response = await Model.find(
       {
         role: data.role || "user",

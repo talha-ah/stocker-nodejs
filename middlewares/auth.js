@@ -24,6 +24,7 @@ function auth(role = "user") {
     const decoded = useJWT(token)
 
     let user = await UserModel.findById(decoded.id).lean()
+
     if (!user) throw new CustomError(errors.userNotFound, 401)
     else if (user.status === "inactive")
       throw new CustomError(errors.inactiveAccount, 401)

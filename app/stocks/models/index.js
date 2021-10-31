@@ -4,17 +4,14 @@ const Schema = mongoose.Schema
 const MSchema = new Schema(
   {
     cost_price: {
-      trim: true,
       type: Number,
       required: true,
     },
     sale_price: {
-      trim: true,
       type: Number,
       required: true,
     },
     inventory: {
-      trim: true,
       type: Number,
       required: true,
     },

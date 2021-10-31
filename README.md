@@ -19,3 +19,8 @@
 1. Start up the server - Run `npm start`
 
 2. Server should be running on http(s)://example.com/
+
+# TO DO
+
+- Inventory check/subtract for orders
+- Cancel an order with paid payments

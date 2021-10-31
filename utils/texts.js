@@ -45,6 +45,29 @@ const errors = {
   stockInventoryRequired: "Stock inventory is required",
   stockLocationRequired: "Stock location is required",
   stockCodeRequired: "Stock code is required",
+
+  // Order
+  orderNotFound: "Order not found",
+  orderIdRequired: "Order ID is required",
+  orderIdLength: "Order ID should be 24 characters",
+  orderCreatedForLength: "Customer ID should be 24 characters",
+  orderCreatedForRequired: "Customer is required",
+  orderDisplayIdRequired: "Display Id is required",
+  orderQuantityRequired: "Quantity is required",
+  orderPriceRequired: "Price is required",
+  orderDiscountRequired: "Discount is required",
+  orderDiscountTypeRequired: "Discount type is required",
+  orderDiscountTypeValid: "Discount type should be [percentage, fixed]",
+  orderPaymentRequired: "Payment is required",
+  orderPaymentTypeRequired: "Payment type is required",
+  orderPaymentTypeValid: "Payment type should be [cash, installments]",
+  orderPaymentInstallmentsRequired: "Payment installments is required",
+  orderStatusRequired: "Status is required",
+  orderStatusValid: "Status should be [active, shipped, fulfilled]",
+  orderStatusQuotationValid: "Status should be [active, quotation]",
+  orderTypeCash: "Order does not require payments",
+  orderTotalPriceLessThanPayment:
+    "Unable to add payment for more than the required value",
 }
 
 const texts = {
