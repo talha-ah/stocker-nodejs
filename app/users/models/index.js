@@ -15,19 +15,38 @@ const MSchema = new Schema(
     email: {
       trim: true,
       type: String,
-      required: true,
+    },
+    phone: {
+      type: String,
     },
     password: {
       type: String,
-      required: true,
     },
     image: {
+      type: String,
+    },
+    address_one: {
+      type: String,
+    },
+    address_two: {
+      type: String,
+    },
+    postal_code: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+    country: {
       type: String,
     },
     role: {
       trim: true,
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin", "customer"],
       default: "user",
     },
     status: {

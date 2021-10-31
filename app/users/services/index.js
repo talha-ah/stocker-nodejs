@@ -5,28 +5,56 @@ const Model = require("../models")
 
 class Service {
   async getAll(data) {
-    const users = await Model.find(
-      { role: "user" },
-      { password: 0, __v: 0 }
+    const response = await Model.find(
+      {
+        role: data.role || "user",
+        $or: [
+          { first_name: { $regex: `.*${data.search}.*`, $options: "i" } },
+          { last_name: { $regex: `.*${data.search}.*`, $options: "i" } },
+          { email: { $regex: `.*${data.search}.*`, $options: "i" } },
+        ],
+      },
+      { password: 0 }
     ).lean()
 
-    return users
+    if (!response) throw new CustomError(errors.error, 404)
+    return response
   }
 
   async getOne(data) {
-    const user = await Model.findById(data.userId, {
+    const response = await Model.findById(data.id, {
       password: 0,
-      __v: 0,
     }).lean()
 
-    return user
+    if (!response) throw new CustomError(errors.userNotFound, 404)
+    return response
+  }
+
+  async createOne(data) {
+    data.role = "customer"
+    data.status = "active"
+
+    const response = await Model.create(data)
+
+    if (!response) throw new CustomError(errors.error, 404)
+    return response
+  }
+
+  async updateOne(data) {
+    const response = await Model.findByIdAndUpdate(
+      data.id,
+      { $set: data },
+      { new: true }
+    ).lean()
+
+    if (!response) throw new CustomError(errors.userNotFound, 404)
+    return response
   }
 
   async deleteOne(data) {
-    const user = await Model.findByIdAndDelete(data.userId)
+    const response = await Model.findByIdAndDelete(data.id)
 
-    if (!user) throw new CustomError(errors.userNotFound, 404)
-
+    if (!response) throw new CustomError(errors.userNotFound, 404)
     return
   }
 }
