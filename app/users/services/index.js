@@ -17,7 +17,9 @@ class Service {
         ],
       },
       { password: 0 }
-    ).lean()
+    )
+      .sort({ createdAt: -1 })
+      .lean()
 
     if (!response) throw new CustomError(errors.error, 404)
     return response

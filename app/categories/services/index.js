@@ -7,8 +7,13 @@ const Model = require("../models")
 const StockModel = require("../../stocks/models")
 
 class Service {
-  async getAll() {
+  async getAll(data) {
     const response = await Model.aggregate([
+      {
+        $match: {
+          created_by: ObjectId(data.userId),
+        },
+      },
       {
         $lookup: {
           from: StockModel.collection.name,
@@ -21,6 +26,9 @@ class Service {
         $addFields: {
           items: { $size: "$items" },
         },
+      },
+      {
+        $sort: { createdAt: -1 },
       },
     ])
 
@@ -55,6 +63,8 @@ class Service {
   }
 
   async createOne(data) {
+    data.created_by = data.userId
+
     const response = await Model.create(data)
 
     if (!response) throw new CustomError(errors.error, 404)
@@ -62,8 +72,8 @@ class Service {
   }
 
   async updateOne(data) {
-    const response = await Model.findByIdAndUpdate(
-      data.id,
+    const response = await Model.findOneAndUpdate(
+      { _id: ObjectId(data.id), created_by: ObjectId(data.userId) },
       {
         $set: data,
       },
@@ -75,7 +85,10 @@ class Service {
   }
 
   async deleteOne(data) {
-    const response = await Model.findByIdAndDelete(data.id)
+    const response = await Model.findOneAndDelete({
+      _id: ObjectId(data.id),
+      created_by: ObjectId(data.userId),
+    })
 
     if (!response) throw new CustomError(errors.categoryNotFound, 404)
     return

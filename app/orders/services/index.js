@@ -9,7 +9,9 @@ class Service {
     const response = await Model.find({
       created_by: data.userId,
       status: data.status || "active",
-    }).lean()
+    })
+      .sort({ createdAt: -1 })
+      .lean()
 
     if (!response) throw new CustomError(errors.error, 404)
     return response

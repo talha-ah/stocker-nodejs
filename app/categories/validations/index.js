@@ -6,6 +6,11 @@ const { joiError } = require("../../../utils/joiError")
 const schemas = {
   checkId: (data) => {
     const Validation = Joi.object().keys({
+      userId: Joi.string().length(24).required().messages({
+        "string.length": errors.userIdLength,
+        "string.empty": errors.userIdRequired,
+        "any.required": errors.userIdRequired,
+      }),
       id: Joi.string().length(24).required().messages({
         "string.length": errors.categoryIdLength,
         "string.empty": errors.categoryIdRequired,
@@ -17,6 +22,11 @@ const schemas = {
   },
   createOne: (data) => {
     const Validation = Joi.object().keys({
+      userId: Joi.string().length(24).required().messages({
+        "string.length": errors.userIdLength,
+        "string.empty": errors.userIdRequired,
+        "any.required": errors.userIdRequired,
+      }),
       name: Joi.string().required().messages({
         "string.empty": errors.categoryNameRequired,
         "any.required": errors.categoryNameRequired,
@@ -27,6 +37,11 @@ const schemas = {
   },
   updateOne: (data) => {
     const Validation = Joi.object().keys({
+      userId: Joi.string().length(24).required().messages({
+        "string.length": errors.userIdLength,
+        "string.empty": errors.userIdRequired,
+        "any.required": errors.userIdRequired,
+      }),
       id: Joi.string().length(24).required().messages({
         "string.length": errors.categoryIdLength,
         "string.empty": errors.categoryIdRequired,

@@ -1,11 +1,16 @@
+const ObjectId = require("mongodb").ObjectId
+
 const { errors } = require("../../../utils/texts")
 const { CustomError } = require("../../../utils/customError")
 
 const Model = require("../models")
 
 class Service {
-  async getAll() {
-    const response = await Model.find().populate("category").lean()
+  async getAll(data) {
+    const response = await Model.find({ created_by: ObjectId(data.userId) })
+      .populate("category")
+      .sort({ createdAt: -1 })
+      .lean()
 
     if (!response) throw new CustomError(errors.error, 404)
     return response
@@ -19,6 +24,8 @@ class Service {
   }
 
   async createOne(data) {
+    data.created_by = data.userId
+
     const response = await Model.create(data)
 
     if (!response) throw new CustomError(errors.error, 404)
@@ -26,8 +33,8 @@ class Service {
   }
 
   async updateOne(data) {
-    const response = await Model.findByIdAndUpdate(
-      data.id,
+    const response = await Model.findOneAndUpdate(
+      { _id: ObjectId(data.id), created_by: ObjectId(data.userId) },
       {
         $set: data,
       },
@@ -41,7 +48,10 @@ class Service {
   }
 
   async deleteOne(data) {
-    const response = await Model.findByIdAndDelete(data.id)
+    const response = await Model.findOneAndDelete({
+      _id: ObjectId(data.id),
+      created_by: ObjectId(data.userId),
+    })
 
     if (!response) throw new CustomError(errors.stockNotFound, 404)
     return

@@ -8,6 +8,11 @@ const MSchema = new Schema(
       type: String,
       required: true,
     },
+    created_by: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
     status: {
       type: String,
       enum: ["active", "inactive"],

@@ -6,13 +6,16 @@ const Validations = require("../validations")
 
 class Contoller {
   async getAll(req, res) {
-    const response = await Service.getAll()
+    const response = await Service.getAll({ userId: req.userId })
 
     res.status(200).json(CustomResponse(texts.success, response))
   }
 
   async getOne(req, res) {
-    const data = await Validations.checkId(req.params)
+    const data = await Validations.checkId({
+      userId: req.userId,
+      ...req.params,
+    })
 
     const response = await Service.getOne(data)
 
@@ -20,7 +23,10 @@ class Contoller {
   }
 
   async createOne(req, res) {
-    const data = await Validations.createOne(req.body)
+    const data = await Validations.createOne({
+      userId: req.userId,
+      ...req.body,
+    })
 
     const response = await Service.createOne(data)
 
@@ -29,6 +35,7 @@ class Contoller {
 
   async updateOne(req, res) {
     const data = await Validations.updateOne({
+      userId: req.userId,
       ...req.params,
       ...req.body,
     })
@@ -39,7 +46,10 @@ class Contoller {
   }
 
   async deleteOne(req, res) {
-    const data = await Validations.checkId(req.params)
+    const data = await Validations.checkId({
+      userId: req.userId,
+      ...req.params,
+    })
 
     const response = await Service.deleteOne(data)
 
