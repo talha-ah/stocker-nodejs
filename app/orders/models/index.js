@@ -117,6 +117,10 @@ const MSchema = new Schema(
         },
       },
     ],
+    paid: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       default: "quotation",

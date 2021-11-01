@@ -64,6 +64,11 @@ const MSchema = new Schema(
       enum: ["user", "admin", "customer"],
       default: "user",
     },
+    created_by: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
     status: {
       type: String,
       enum: ["pending", "active", "inactive"],

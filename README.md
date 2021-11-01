@@ -22,5 +22,4 @@
 
 # TO DO
 
-- Inventory check/subtract for orders
 - Cancel an order with paid payments

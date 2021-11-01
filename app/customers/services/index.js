@@ -1,7 +1,9 @@
+const ObjectId = require("mongodb").ObjectId
+
 const { errors } = require("../../../utils/texts")
 const { CustomError } = require("../../../utils/customError")
 
-const Model = require("../models")
+const Model = require("../../users/models")
 
 class Service {
   async getAll(data) {
@@ -9,7 +11,7 @@ class Service {
 
     const response = await Model.find(
       {
-        role: data.role || "user",
+        created_by: ObjectId(data.userId),
         $or: [
           { first_name: { $regex: `.*${data.search}.*`, $options: "i" } },
           { last_name: { $regex: `.*${data.search}.*`, $options: "i" } },
@@ -34,8 +36,32 @@ class Service {
     return response
   }
 
+  async createOne(data) {
+    data.role = "customer"
+    data.created_by = data.userId
+
+    const response = await Model.create(data)
+
+    if (!response) throw new CustomError(errors.error, 404)
+    return response
+  }
+
+  async updateOne(data) {
+    const response = await Model.findOneAndUpdate(
+      { _id: ObjectId(data.id), created_by: Object(data.userId) },
+      { $set: data },
+      { new: true }
+    ).lean()
+
+    if (!response) throw new CustomError(errors.userNotFound, 404)
+    return response
+  }
+
   async deleteOne(data) {
-    const response = await Model.findByIdAndDelete(data.id)
+    const response = await Model.findOneAndDelete({
+      _id: ObjectId(data.id),
+      created_by: Object(data.userId),
+    })
 
     if (!response) throw new CustomError(errors.userNotFound, 404)
     return

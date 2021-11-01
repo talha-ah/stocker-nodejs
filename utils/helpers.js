@@ -33,11 +33,11 @@ module.exports = {
       return jwt.verify(data, process.env.JWT_SECRET)
     } catch (error) {
       if (error.name === "TokenExpiredError") {
-        throw new CustomError("Token is expired", 401)
+        throw new CustomError("Token is expired", 403)
       } else if (error.name === "JsonWebTokenError") {
-        throw new CustomError("Token is invalid", 401)
+        throw new CustomError("Token is invalid", 403)
       } else if (error.name === "NotBeforeError") {
-        throw new CustomError("Token is invalid", 401)
+        throw new CustomError("Token is invalid", 403)
       } else {
         throw error
       }

@@ -30,6 +30,12 @@ const errors = {
   alreadyVerified: "Account is already verified",
   notAuthorized: "Not authorized",
 
+  // Customers
+  customerIdRequired: "Customer ID is required",
+  customerIdLength: "Customer ID should be 24 characters",
+  customerNameRequired: "Customer name is required",
+  customerNotFound: "Customer not found",
+
   // Category
   categoryIdRequired: "Category ID is required",
   categoryIdLength: "Category ID should be 24 characters",
@@ -66,8 +72,11 @@ const errors = {
   orderStatusValid: "Status should be [active, shipped, fulfilled]",
   orderStatusQuotationValid: "Status should be [active, quotation]",
   orderTypeCash: "Order does not require payments",
+  orderTypeQuotation: "Unable to add payment for quotation",
   orderTotalPriceLessThanPayment:
     "Unable to add payment for more than the required value",
+  orderStatusInvalid: "Status is invalid",
+  orderStockInventoryInvalid: "Stock is not available for this quantity",
 }
 
 const texts = {

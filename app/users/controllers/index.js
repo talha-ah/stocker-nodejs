@@ -19,25 +19,6 @@ class Contoller {
     res.status(200).json(CustomResponse(texts.success, response))
   }
 
-  async createOne(req, res) {
-    const data = await Validations.createOne(req.body)
-
-    const response = await Service.createOne(data)
-
-    res.status(200).json(CustomResponse(texts.success, response))
-  }
-
-  async updateOne(req, res) {
-    const data = await Validations.updateOne({
-      ...req.params,
-      ...req.body,
-    })
-
-    const response = await Service.updateOne(data)
-
-    res.status(200).json(CustomResponse(texts.success, response))
-  }
-
   async deleteOne(req, res) {
     const data = await Validations.checkId(req.params)
 
