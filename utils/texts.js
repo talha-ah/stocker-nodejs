@@ -82,12 +82,12 @@ const errors = {
 const texts = {
   success: "Success",
 
-  allUsers: "All users",
-  userData: "User data",
-  userCreated: "User created",
-  userUpdated: "User updated",
-  userDeleted: "User deleted",
-  passwordSuccess: "Password updated",
+  users: "Users",
+  orders: "Orders",
+  stocks: "Stocks",
+  profile: "Profile",
+  customers: "Customers",
+  categories: "Categories",
   loginSuccess: "Logged in successfully",
   emailVerified: "Email verified successfully",
   passwordResetSent: "Password reset link sent",

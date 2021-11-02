@@ -3,6 +3,10 @@ const Schema = mongoose.Schema
 
 const MSchema = new Schema(
   {
+    sr: {
+      type: Number,
+      required: true,
+    },
     cost_price: {
       type: Number,
       required: true,

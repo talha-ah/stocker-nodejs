@@ -8,7 +8,7 @@ class Contoller {
   async getAll(req, res) {
     const response = await Service.getAll({ userId: req.userId, ...req.query })
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.orders, response))
   }
 
   async getOne(req, res) {
@@ -19,7 +19,7 @@ class Contoller {
 
     const response = await Service.getOne(data)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.orders, response))
   }
 
   async createOne(req, res) {
@@ -30,7 +30,7 @@ class Contoller {
 
     const response = await Service.createOne(data)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.orders, response))
   }
 
   async updateOne(req, res) {
@@ -42,7 +42,7 @@ class Contoller {
 
     const response = await Service.updateOne(data)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.orders, response))
   }
 
   async addPayment(req, res) {
@@ -54,7 +54,7 @@ class Contoller {
 
     const response = await Service.addPayment(data)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.orders, response))
   }
 
   async cancelOne(req, res) {
@@ -65,7 +65,7 @@ class Contoller {
 
     const response = await Service.cancelOne(data)
 
-    res.status(201).json(CustomResponse(texts.success, response))
+    res.status(201).json(CustomResponse(texts.orders, response))
   }
 }
 

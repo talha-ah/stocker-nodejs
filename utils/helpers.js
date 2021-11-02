@@ -24,7 +24,7 @@ module.exports = {
 
   // Create a JWT Token
   createJWT: (data) => {
-    return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: 60 * 60 })
+    return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "24h" })
   },
 
   // Decode JWT Token

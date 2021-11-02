@@ -8,7 +8,7 @@ class Contoller {
   async getAll(req, res) {
     const response = await Service.getAll({ userId: req.userId })
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.categories, response))
   }
 
   async getOne(req, res) {
@@ -19,7 +19,7 @@ class Contoller {
 
     const response = await Service.getOne(data)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.categories, response))
   }
 
   async createOne(req, res) {
@@ -30,7 +30,7 @@ class Contoller {
 
     const response = await Service.createOne(data)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.categories, response))
   }
 
   async updateOne(req, res) {
@@ -42,7 +42,7 @@ class Contoller {
 
     const response = await Service.updateOne(data)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.categories, response))
   }
 
   async deleteOne(req, res) {
@@ -53,7 +53,7 @@ class Contoller {
 
     const response = await Service.deleteOne(data)
 
-    res.status(201).json(CustomResponse(texts.success, response))
+    res.status(201).json(CustomResponse(texts.categories, response))
   }
 }
 

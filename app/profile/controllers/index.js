@@ -12,7 +12,7 @@ class Contoller {
 
     const response = await Service.fetchProfile(data)
 
-    res.status(200).json(CustomResponse(texts.fetchProfile, response))
+    res.status(200).json(CustomResponse(texts.profile, response))
   }
 
   async updateProfile(req, res) {
@@ -23,7 +23,7 @@ class Contoller {
 
     const response = await Service.updateProfile(data)
 
-    res.status(201).json(CustomResponse(texts.profileUpdated, response))
+    res.status(201).json(CustomResponse(texts.profile, response))
   }
 
   async updatePassword(req, res) {
@@ -34,7 +34,7 @@ class Contoller {
 
     const response = await Service.updatePassword(data)
 
-    res.status(201).json(CustomResponse(texts.passwordUpdated, response))
+    res.status(201).json(CustomResponse(texts.profile, response))
   }
 
   async deactivateProfile(req, res) {
@@ -44,7 +44,7 @@ class Contoller {
 
     const response = await Service.deactivateProfile(data)
 
-    res.status(200).json(CustomResponse(texts.userDeactivated, response))
+    res.status(200).json(CustomResponse(texts.profile, response))
   }
 }
 

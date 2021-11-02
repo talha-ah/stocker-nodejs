@@ -9,7 +9,7 @@ class Service {
   async getAll(data) {
     const response = await Model.find({ created_by: ObjectId(data.userId) })
       .populate("category")
-      .sort({ createdAt: -1 })
+      // .sort({ createdAt: -1 })
       .lean()
 
     if (!response) throw new CustomError(errors.error, 404)
@@ -24,6 +24,9 @@ class Service {
   }
 
   async createOne(data) {
+    const count = await Model.find().count()
+
+    data.sr = count + 1
     data.created_by = data.userId
 
     const response = await Model.create(data)

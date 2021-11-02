@@ -8,7 +8,7 @@ class Contoller {
   async getAll(req, res) {
     const response = await Service.getAll(req.query)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.users, response))
   }
 
   async getOne(req, res) {
@@ -16,7 +16,7 @@ class Contoller {
 
     const response = await Service.getOne(data)
 
-    res.status(200).json(CustomResponse(texts.success, response))
+    res.status(200).json(CustomResponse(texts.users, response))
   }
 
   async deleteOne(req, res) {
@@ -24,7 +24,7 @@ class Contoller {
 
     const response = await Service.deleteOne(data)
 
-    res.status(201).json(CustomResponse(texts.userDeleted, response))
+    res.status(201).json(CustomResponse(texts.users, response))
   }
 }
 
