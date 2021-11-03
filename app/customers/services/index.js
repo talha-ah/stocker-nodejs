@@ -4,24 +4,76 @@ const { errors } = require("../../../utils/texts")
 const { CustomError } = require("../../../utils/customError")
 
 const Model = require("../../users/models")
+const OrderModel = require("../../orders/models")
 
 class Service {
   async getAll(data) {
     data.search = data.search || ""
 
-    const response = await Model.find(
+    const response = await Model.aggregate([
       {
-        created_by: ObjectId(data.userId),
-        $or: [
-          { first_name: { $regex: `.*${data.search}.*`, $options: "i" } },
-          { last_name: { $regex: `.*${data.search}.*`, $options: "i" } },
-          { email: { $regex: `.*${data.search}.*`, $options: "i" } },
-        ],
+        $match: {
+          created_by: ObjectId(data.userId),
+          $or: [
+            { first_name: { $regex: `.*${data.search}.*`, $options: "i" } },
+            { last_name: { $regex: `.*${data.search}.*`, $options: "i" } },
+            { email: { $regex: `.*${data.search}.*`, $options: "i" } },
+          ],
+        },
       },
-      { password: 0 }
-    )
-      .sort({ createdAt: -1 })
-      .lean()
+      {
+        $project: {
+          password: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: OrderModel.collection.name,
+          let: {
+            customer_id: "$_id",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$created_for", "$$customer_id"],
+                    },
+                    {
+                      $ne: ["$status", "quotation"],
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              $count: "count",
+            },
+          ],
+          as: "orders",
+        },
+      },
+      {
+        $addFields: {
+          orders: {
+            $let: {
+              vars: {
+                count: {
+                  $first: "$orders",
+                },
+              },
+              in: "$$count.count",
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ])
 
     if (!response) throw new CustomError(errors.error, 404)
     return response

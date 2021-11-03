@@ -4,6 +4,7 @@ const { errors } = require("../../../utils/texts")
 const { CustomError } = require("../../../utils/customError")
 
 const Model = require("../models")
+const UserModel = require("../../users/models")
 const StockModel = require("../../stocks/models")
 
 class Service {
@@ -81,6 +82,12 @@ class Service {
         },
       ]
       data.paid = true
+    } else {
+      await UserModel.findByIdAndUpdate(data.created_for, {
+        $inc: {
+          "balance.value": totalPrice,
+        },
+      })
     }
 
     // Create order
@@ -189,6 +196,14 @@ class Service {
     ).lean()
 
     if (!response) throw new CustomError(errors.error, 404)
+
+    // Update user balance
+    await UserModel.findByIdAndUpdate(order.created_for, {
+      $inc: {
+        "balance.value": -data.value,
+      },
+    })
+
     return response
   }
 
