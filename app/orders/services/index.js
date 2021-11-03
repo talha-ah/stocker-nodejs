@@ -12,6 +12,7 @@ class Service {
       created_by: data.userId,
       status: data.status || "active",
     })
+      .populate("created_for")
       .sort({ createdAt: -1 })
       .lean()
 
@@ -42,7 +43,11 @@ class Service {
             throw new CustomError(errors.orderStockInventoryInvalid, 404)
         }
 
-        if (stock.discount_type === "percentage") {
+        if (
+          stock.discount_type === "percentage" &&
+          stock.discount &&
+          stock.discount > 0
+        ) {
           let price = stock.price * stock.quantity
           totalPrice += (price * stock.discount) / 100
         } else {

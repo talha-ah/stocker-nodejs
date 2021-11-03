@@ -6,7 +6,7 @@ const Validations = require("../validations")
 
 class Contoller {
   async getAll(req, res) {
-    const response = await Service.getAll({ userId: req.userId })
+    const response = await Service.getAll({ userId: req.userId, ...req.query })
 
     res.status(200).json(CustomResponse(texts.stocks, response))
   }

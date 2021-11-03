@@ -7,7 +7,15 @@ const Model = require("../models")
 
 class Service {
   async getAll(data) {
-    const response = await Model.find({ created_by: ObjectId(data.userId) })
+    data.search = data.search || ""
+
+    const response = await Model.find({
+      created_by: ObjectId(data.userId),
+      $or: [
+        { description: { $regex: `.*${data.search}.*`, $options: "i" } },
+        { code: { $regex: `.*${data.search}.*`, $options: "i" } },
+      ],
+    })
       .populate("category")
       // .sort({ createdAt: -1 })
       .lean()
