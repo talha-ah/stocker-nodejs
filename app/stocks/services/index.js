@@ -17,7 +17,7 @@ class Service {
       ],
     })
       .populate("category")
-      // .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 })
       .lean()
 
     if (!response) throw new CustomError(errors.error, 404)

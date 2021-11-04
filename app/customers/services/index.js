@@ -19,6 +19,7 @@ class Service {
             { last_name: { $regex: `.*${data.search}.*`, $options: "i" } },
             { email: { $regex: `.*${data.search}.*`, $options: "i" } },
           ],
+          status: { $ne: "inactive" },
         },
       },
       {
@@ -47,9 +48,6 @@ class Service {
                 },
               },
             },
-            {
-              $count: "count",
-            },
           ],
           as: "orders",
         },
@@ -57,14 +55,7 @@ class Service {
       {
         $addFields: {
           orders: {
-            $let: {
-              vars: {
-                count: {
-                  $first: "$orders",
-                },
-              },
-              in: "$$count.count",
-            },
+            $size: "$orders",
           },
         },
       },
@@ -110,10 +101,17 @@ class Service {
   }
 
   async deleteOne(data) {
-    const response = await Model.findOneAndDelete({
-      _id: ObjectId(data.id),
-      created_by: Object(data.userId),
-    })
+    const response = await Model.findOneAndUpdate(
+      {
+        _id: ObjectId(data.id),
+        created_by: Object(data.userId),
+      },
+      {
+        $set: {
+          state: "inactive",
+        },
+      }
+    )
 
     if (!response) throw new CustomError(errors.userNotFound, 404)
     return
