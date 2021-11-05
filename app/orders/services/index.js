@@ -9,13 +9,35 @@ const StockModel = require("../../stocks/models")
 
 class Service {
   async getAll(data) {
-    const response = await Model.find({
-      created_by: data.userId,
-      status: data.status || "active",
-    })
-      .populate("created_for")
-      .sort({ createdAt: -1 })
-      .lean()
+    const response = await Model.aggregate([
+      {
+        $match: {
+          created_by: ObjectId(data.userId),
+          status: data.status || "active",
+        },
+      },
+      {
+        $lookup: {
+          from: UserModel.collection.name,
+          localField: "created_for",
+          foreignField: "_id",
+          as: "created_for",
+        },
+      },
+      {
+        $addFields: {
+          created_for: { $first: "$created_for" },
+          balance: {
+            $subtract: ["$total_price", { $sum: "$payments.value" }],
+          },
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ])
 
     if (!response) throw new CustomError(errors.error, 404)
     return response
@@ -50,7 +72,8 @@ class Service {
           stock.discount > 0
         ) {
           let price = stock.price * stock.quantity
-          totalPrice += (price * stock.discount) / 100
+          let discount = (price * stock.discount) / 100
+          totalPrice += price - discount
         } else {
           let price = stock.price * stock.quantity
           price = price - stock.discount
