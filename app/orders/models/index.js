@@ -13,6 +13,9 @@ const MSchema = new Schema(
       required: true,
       type: Schema.Types.ObjectId,
     },
+    order_id: {
+      type: Number,
+    },
     display_id: {
       trim: true,
       type: String,

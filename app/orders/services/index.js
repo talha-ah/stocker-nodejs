@@ -7,8 +7,14 @@ const Model = require("../models")
 const UserModel = require("../../users/models")
 const StockModel = require("../../stocks/models")
 
+const ENV = process.env
+
 class Service {
   async getAll(data) {
+    let page = data.page ? +data.page : 1
+    let limit = data.limit ? +data.limit : +ENV.PAGINATION_LIMIT
+    let skip = (page - 1) * limit
+
     const response = await Model.aggregate([
       {
         $match: {
@@ -25,17 +31,60 @@ class Service {
         },
       },
       {
+        $lookup: {
+          from: StockModel.collection.name,
+          localField: "stocks.stock_id",
+          foreignField: "_id",
+          as: "stocksLookup",
+        },
+      },
+      {
         $addFields: {
           created_for: { $first: "$created_for" },
           balance: {
             $subtract: ["$total_price", { $sum: "$payments.value" }],
           },
+          stocks: {
+            $map: {
+              input: "$stocks",
+              as: "stock",
+              in: {
+                $mergeObjects: [
+                  "$$stock",
+                  {
+                    stock_id: {
+                      $arrayElemAt: [
+                        "$stocksLookup",
+                        {
+                          $indexOfArray: [
+                            "$stocksLookup._id",
+                            "$$stock.stock_id",
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          stocksLookup: 0,
         },
       },
       {
         $sort: {
           createdAt: -1,
         },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
       },
     ])
 
@@ -113,8 +162,12 @@ class Service {
       })
     }
 
+    const totalCount = await Model.find().count()
+
+    data.order_id = totalCount + 1
+
     // Create order
-    const response = await Model.create(data)
+    const order = await Model.create(data)
 
     // Update inventory
     if (data.status !== "quotation") {
@@ -129,8 +182,69 @@ class Service {
       )
     }
 
-    if (!response) throw new CustomError(errors.error, 404)
-    return response
+    const response = await Model.aggregate([
+      {
+        $match: {
+          _id: ObjectId(order._id),
+        },
+      },
+      {
+        $lookup: {
+          from: UserModel.collection.name,
+          localField: "created_for",
+          foreignField: "_id",
+          as: "created_for",
+        },
+      },
+      {
+        $lookup: {
+          from: StockModel.collection.name,
+          localField: "stocks.stock_id",
+          foreignField: "_id",
+          as: "stocksLookup",
+        },
+      },
+      {
+        $addFields: {
+          created_for: { $first: "$created_for" },
+          balance: {
+            $subtract: ["$total_price", { $sum: "$payments.value" }],
+          },
+          stocks: {
+            $map: {
+              input: "$stocks",
+              as: "stock",
+              in: {
+                $mergeObjects: [
+                  "$$stock",
+                  {
+                    stock_id: {
+                      $arrayElemAt: [
+                        "$stocksLookup",
+                        {
+                          $indexOfArray: [
+                            "$stocksLookup._id",
+                            "$$stock.stock_id",
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          stocksLookup: 0,
+        },
+      },
+    ])
+
+    if (!response[0]) throw new CustomError(errors.error, 404)
+    return response[0]
   }
 
   async updateOne(data) {
