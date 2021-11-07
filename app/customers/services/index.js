@@ -108,7 +108,7 @@ class Service {
       },
       {
         $set: {
-          state: "inactive",
+          status: "inactive",
         },
       }
     )
