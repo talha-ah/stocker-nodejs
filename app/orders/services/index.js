@@ -11,10 +11,6 @@ const ENV = process.env
 
 class Service {
   async getAll(data) {
-    let page = data.page ? +data.page : 1
-    let limit = data.limit ? +data.limit : +ENV.PAGINATION_LIMIT
-    let skip = (page - 1) * limit
-
     const response = await Model.aggregate([
       {
         $match: {
@@ -79,12 +75,6 @@ class Service {
         $sort: {
           createdAt: -1,
         },
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limit,
       },
     ])
 
