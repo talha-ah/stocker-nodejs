@@ -7,8 +7,6 @@ const Model = require("../models")
 const UserModel = require("../../users/models")
 const StockModel = require("../../stocks/models")
 
-const ENV = process.env
-
 class Service {
   async getAll(data) {
     const response = await Model.aggregate([
@@ -136,7 +134,7 @@ class Service {
     data.stocks = stocks
     data.total_price = totalPrice
 
-    if (data.type === "cash") {
+    if (data.type === "cash" && data.status !== "quotation") {
       data.payments = [
         {
           unit: "PKR",
@@ -258,6 +256,22 @@ class Service {
           throw new CustomError(errors.orderStockInventoryInvalid, 404)
       })
 
+      if (order.type === "cash") {
+        data.payments = [
+          {
+            unit: "PKR",
+            value: order.total_price,
+          },
+        ]
+        data.paid = true
+      } else {
+        await UserModel.findByIdAndUpdate(order.created_for, {
+          $inc: {
+            "balance.value": order.total_price,
+          },
+        })
+      }
+
       // Quotation => Order
       const response = await Model.findByIdAndUpdate(data.id, {
         $set: data,
@@ -336,7 +350,7 @@ class Service {
 
   async cancelOne(data) {
     const response = await Model.findOneAndUpdate(
-      { _id: ObjectId(data.id), created_by: ObjectId(req.userId) },
+      { _id: ObjectId(data.id), created_by: ObjectId(data.userId) },
       {
         $set: {
           status: "cancelled",
