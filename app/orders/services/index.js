@@ -13,7 +13,7 @@ class Service {
       {
         $match: {
           created_by: ObjectId(data.userId),
-          status: data.status || "active",
+          status: data.status || { $ne: "quotation" },
         },
       },
       {
