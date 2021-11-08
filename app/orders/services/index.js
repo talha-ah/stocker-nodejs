@@ -348,6 +348,87 @@ class Service {
     return response
   }
 
+  async addGeneralPayment(data) {
+    const orders = await Model.aggregate([
+      {
+        $match: {
+          paid: false,
+          status: "active",
+          type: "installments",
+          created_by: ObjectId(data.userId),
+          created_for: ObjectId(data.customerId),
+        },
+      },
+      {
+        $addFields: {
+          balance: {
+            $subtract: ["$total_price", { $sum: "$payments.value" }],
+          },
+        },
+      },
+      {
+        $sort: {
+          createdAt: 1,
+        },
+      },
+    ])
+
+    if (orders.length === 0) throw new CustomError(errors.noPendingPayment, 404)
+
+    let totalPrice = data.value
+    let inputPrice = data.value
+    let payments = []
+
+    orders.forEach((order) => {
+      let amount = inputPrice - order.balance
+      if (amount > 0) {
+        inputPrice -= order.balance
+        amount = order.balance
+      } else if (amount < 0) {
+        amount = order.balance - inputPrice
+        inputPrice = 0
+      } else {
+        amount = order.balance
+        inputPrice = 0
+      }
+      payments.push({
+        orderId: order._id,
+        paid: amount === order.balance,
+        payment: {
+          value: amount,
+          unit: data.unit,
+          installment: order.payments.length + 1,
+        },
+      })
+    })
+
+    if (inputPrice > 0)
+      throw new CustomError(errors.orderTotalPriceLessThanPayment, 404)
+
+    // Add order payments
+    payments.forEach(async (payment) => {
+      await Model.findByIdAndUpdate(payment.orderId, {
+        $addToSet: {
+          payments: payment.payment,
+        },
+        $set: {
+          paid: payment.paid,
+        },
+      }).lean()
+
+      if (!response) throw new CustomError(errors.error, 404)
+    })
+
+    // Update user balance
+    await UserModel.findByIdAndUpdate(data.customerId, {
+      $inc: {
+        "balance.value": -totalPrice,
+      },
+    })
+
+    return payments
+  }
+
   async cancelOne(data) {
     const response = await Model.findOneAndUpdate(
       { _id: ObjectId(data.id), created_by: ObjectId(data.userId) },

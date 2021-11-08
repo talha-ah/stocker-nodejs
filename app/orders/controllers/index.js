@@ -57,6 +57,17 @@ class Contoller {
     res.status(200).json(CustomResponse(texts.orders, response))
   }
 
+  async addGeneralPayment(req, res) {
+    const data = await Validations.addGeneralPayment({
+      userId: req.userId,
+      ...req.body,
+    })
+
+    const response = await Service.addGeneralPayment(data)
+
+    res.status(200).json(CustomResponse(texts.orders, response))
+  }
+
   async cancelOne(req, res) {
     const data = await Validations.checkId({
       userId: req.userId,

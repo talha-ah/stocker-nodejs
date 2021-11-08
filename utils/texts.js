@@ -77,6 +77,7 @@ const errors = {
     "Unable to add payment for more than the required value",
   orderStatusInvalid: "Status is invalid",
   orderStockInventoryInvalid: "Stock is not available for this quantity",
+  noPendingPayment: "No payment is pending",
 }
 
 const texts = {

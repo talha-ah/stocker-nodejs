@@ -10,5 +10,6 @@ router.post("/", auth(), controller.createOne)
 router.put("/:id", auth(), controller.updateOne)
 router.delete("/:id", auth(), controller.cancelOne)
 router.post("/payment/:id", auth(), controller.addPayment)
+router.post("/general-payment", auth(), controller.addGeneralPayment)
 
 module.exports = router

@@ -157,6 +157,33 @@ const schemas = {
 
     return joiError(Validation.validate(data))
   },
+  addGeneralPayment: (data) => {
+    const Validation = Joi.object().keys({
+      userId: Joi.string().length(24).required().messages({
+        "string.length": errors.userIdLength,
+        "string.empty": errors.userIdRequired,
+        "any.required": errors.userIdRequired,
+      }),
+      customerId: Joi.string().length(24).required().messages({
+        "string.length": errors.customerIdLength,
+        "string.empty": errors.customerIdRequired,
+        "any.required": errors.customerIdRequired,
+      }),
+      value: Joi.number().min(1).required().messages({
+        "number.min": errors.orderPaymentRequired,
+        "any.required": errors.orderPaymentRequired,
+      }),
+      unit: Joi.string()
+        .default("PKR")
+        .valid("PKR", "USD")
+        .optional()
+        .messages({
+          "any.only": errors.orderPaymentTypeRequired,
+        }),
+    })
+
+    return joiError(Validation.validate(data))
+  },
 }
 
 module.exports = schemas
