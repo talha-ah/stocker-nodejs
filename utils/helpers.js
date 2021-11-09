@@ -65,6 +65,7 @@ module.exports = {
     let name = err.name || ""
     let status = err.status || 500
     let message = err.message || ""
+    let data = err.data
 
     if (err.isAxiosError) {
       // console.log("In Parse Error AXIOS".yellow, err)
@@ -92,7 +93,7 @@ module.exports = {
 
     console.log(`${name}: ${message}`.red)
 
-    return { message, status, name }
+    return { message, status, name, data }
   },
 
   // Call axios

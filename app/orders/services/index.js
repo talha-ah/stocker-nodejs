@@ -100,7 +100,10 @@ class Service {
 
         if (data.status !== "quotation") {
           if (stock.quantity > st.inventory)
-            throw new CustomError(errors.orderStockInventoryInvalid, 404)
+            throw new CustomError(
+              `${errors.orderStockInventoryInvalid}: ${st.description}`,
+              404
+            )
         }
 
         if (
@@ -253,7 +256,10 @@ class Service {
       // Check inventory
       stocks.forEach((stock) => {
         if (stock.quantity > stock.stock_id.inventory)
-          throw new CustomError(errors.orderStockInventoryInvalid, 404)
+          throw new CustomError(
+            `${errors.orderStockInventoryInvalid} '${stock.stock_id.description}'`,
+            404
+          )
       })
 
       if (order.type === "cash") {
@@ -317,7 +323,9 @@ class Service {
     })
 
     if (order.total_price < totalPrice)
-      throw new CustomError(errors.orderTotalPriceLessThanPayment, 404)
+      throw new CustomError(errors.orderTotalPriceLessThanPayment, 404, {
+        value: errors.orderTotalPriceLessThanPayment,
+      })
 
     const response = await Model.findByIdAndUpdate(
       data.id,
@@ -373,7 +381,10 @@ class Service {
       },
     ])
 
-    if (orders.length === 0) throw new CustomError(errors.noPendingPayment, 404)
+    if (orders.length === 0)
+      throw new CustomError(errors.noPendingPayment, 404, {
+        value: errors.noPendingPayment,
+      })
 
     let totalPrice = data.value
     let inputPrice = data.value
@@ -403,7 +414,9 @@ class Service {
     })
 
     if (inputPrice > 0)
-      throw new CustomError(errors.orderTotalPriceLessThanPayment, 404)
+      throw new CustomError(errors.orderTotalPriceLessThanPayment, 404, {
+        value: errors.orderTotalPriceLessThanPayment,
+      })
 
     // Add order payments
     payments.forEach(async (payment) => {

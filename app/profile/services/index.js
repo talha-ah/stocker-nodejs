@@ -32,13 +32,18 @@ class Service {
 
   async updatePassword(data) {
     if (data.old_password === data.password)
-      throw new CustomError(errors.samePassword, 400)
+      throw new CustomError(errors.samePassword, 400, {
+        password: errors.samePassword,
+      })
 
     let user = await Model.findById(data.userId)
     if (!user) throw new CustomError(errors.userNotFound, 404)
 
     let check = compareHash(data.old_password, user.password)
-    if (!check) throw new CustomError(errors.passwordInvalid, 406)
+    if (!check)
+      throw new CustomError(errors.passwordInvalid, 406, {
+        old_password: errors.passwordInvalid,
+      })
 
     data.password = hash(data.password)
 

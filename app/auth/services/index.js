@@ -15,11 +15,16 @@ const UserModel = require("../../users/models")
 class Service {
   async register(data) {
     if (data.role === "admin" && data.secret !== ENV.ADMIN_SECRET) {
-      throw new CustomError(errors.secretInvalid, 401)
+      throw new CustomError(errors.secretInvalid, 401, {
+        secret: errors.secretInvalid,
+      })
     }
 
     let user = await UserModel.findOne({ email: data.email }).lean()
-    if (user) throw new CustomError(errors.emailExists, 400)
+    if (user)
+      throw new CustomError(errors.emailExists, 400, {
+        email: errors.emailExists,
+      })
 
     data.password = hash(data.password, 32)
 
@@ -52,15 +57,25 @@ class Service {
 
   async login(data) {
     const user = await UserModel.findOne({ email: data.email }).lean()
+    if (!user)
+      throw new CustomError(errors.userNotFound, 401, {
+        email: errors.userNotFound,
+      })
 
-    if (!user) throw new CustomError(errors.emailInvalid, 401)
     if (user.status === "inactive")
-      throw new CustomError(errors.inactiveAccount, 401)
+      throw new CustomError(errors.inactiveAccount, 401, {
+        email: errors.inactiveAccount,
+      })
     if (user.status === "pending")
-      throw new CustomError(errors.pendingEmailVerification, 401)
+      throw new CustomError(errors.pendingEmailVerification, 401, {
+        email: errors.pendingEmailVerification,
+      })
 
     const isCorrect = compareHash(data.password, user.password)
-    if (!isCorrect) throw new CustomError(errors.passwordInvalid, 401)
+    if (!isCorrect)
+      throw new CustomError(errors.passwordInvalid, 401, {
+        password: errors.passwordInvalid,
+      })
 
     const token = createJWT({ id: user._id })
 
@@ -72,9 +87,14 @@ class Service {
   async verifyEmailRequest(data) {
     const user = await UserModel.findOne({ email: data.email }).lean()
 
-    if (!user) throw new CustomError(errors.emailInvalid)
+    if (!user)
+      throw new CustomError(errors.userNotFound, 401, {
+        email: errors.userNotFound,
+      })
     if (user.status !== "pending")
-      throw new CustomError(errors.alreadyVerified, 400)
+      throw new CustomError(errors.alreadyVerified, 400, {
+        email: errors.alreadyVerified,
+      })
 
     const token = createJWT({ email: data.email })
 
@@ -97,7 +117,10 @@ class Service {
 
   async verifyEmail(data) {
     const token = useJWT(data.token)
-    if (!token.email) throw new CustomError(errors.invalidToken, 401)
+    if (!token.email)
+      throw new CustomError(errors.invalidToken, 401, {
+        token: errors.invalidToken,
+      })
 
     await UserModel.updateOne(
       { email: token.email },
@@ -109,7 +132,10 @@ class Service {
 
   async resetPasswordRequest(data) {
     const user = await UserModel.findOne({ email: data.email }).lean()
-    if (!user) throw new CustomError(errors.emailInvalid, 401)
+    if (!user)
+      throw new CustomError(errors.emailInvalid, 401, {
+        email: errors.emailInvalid,
+      })
 
     const token = createJWT({ email: data.email })
 
@@ -132,7 +158,10 @@ class Service {
 
   async resetPassword(data) {
     const token = useJWT(data.token)
-    if (!token.email) throw new CustomError(errors.invalidToken, 401)
+    if (!token.email)
+      throw new CustomError(errors.invalidToken, 401, {
+        token: errors.invalidToken,
+      })
 
     data.password = hash(data.password, 32)
 
