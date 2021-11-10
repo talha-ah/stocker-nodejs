@@ -20,7 +20,9 @@ require("./middlewares/pre-route")(app)
 app.get("/ping", (req, res) => res.status(200).send("Hello world!"))
 
 // API routes
-require("./app")(app)
+app.use("/api/v1", require("./app"))
+
+app.patch("/merge-atlas", require("./fetchAtlas"))
 
 // Error middlewares
 require("./middlewares/error")(app)

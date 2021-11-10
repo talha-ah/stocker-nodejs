@@ -1,3 +1,5 @@
+const router = require("express").Router()
+
 const auth = require("./auth")
 const users = require("./users")
 const stocks = require("./stocks")
@@ -6,12 +8,12 @@ const profile = require("./profile")
 const customers = require("./customers")
 const categories = require("./categories")
 
-module.exports = function (app) {
-  app.use("/api/v1/auth", auth)
-  app.use("/api/v1/users", users)
-  app.use("/api/v1/stocks", stocks)
-  app.use("/api/v1/orders", orders)
-  app.use("/api/v1/profile", profile)
-  app.use("/api/v1/customers", customers)
-  app.use("/api/v1/categories", categories)
-}
+router.use("/auth", auth)
+router.use("/users", users)
+router.use("/stocks", stocks)
+router.use("/orders", orders)
+router.use("/profile", profile)
+router.use("/customers", customers)
+router.use("/categories", categories)
+
+module.exports = router

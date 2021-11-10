@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 function connect() {
   return new Promise((resolve, reject) => {
-    // Connecting to Database and listening to server
+    // Connecting to Database
     mongoose
       .connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
