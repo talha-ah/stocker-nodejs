@@ -12,6 +12,17 @@ module.exports = {
     return crypto.randomBytes(bytes).toString("hex").substr(0, bytes)
   },
 
+  generateId: (prefix = "", length = 7) => {
+    let result = prefix
+    for (let i = 0; i < length; i++) {
+      const random = Math.random()
+      result += String.fromCharCode(
+        Math.floor(random * 26) + (random < 0.5 ? 65 : 97)
+      )
+    }
+    return result
+  },
+
   // Create a bcrypt hash
   hash: (data) => {
     return bcrypt.hashSync(data, Number(ENV.BCRYPT_SALT))
