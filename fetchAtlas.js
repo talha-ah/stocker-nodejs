@@ -1,4 +1,5 @@
 const MongoClient = require("mongodb").MongoClient
+const ObjectId = require("mongodb").ObjectId
 
 const CategoryModel = require("./app/categories/models")
 const CustomerModel = require("./app/users/models")
@@ -109,10 +110,15 @@ module.exports = async function (req, res) {
   //           })
   //         }
 
+  //         // Stock
+  //         let stock = await StockModel.findOne({
+  //           $or: [{ _id: ObjectId(item.id) }, { description: item.name }],
+  //         }).lean()
+
   //         totalPrice += item.discounted
 
   //         return {
-  //           stock_id: item.id,
+  //           stock_id: stock ? stock._id : "618baf8414d8132b1cfa7866",
   //           quantity: item.quantity,
   //           cost_price: item.cost,
   //           sale_price: item.price,
