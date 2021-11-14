@@ -34,23 +34,6 @@ module.exports = async function (req, res) {
   //   })
   // )
 
-  // // Customers
-  // const customers = await db.collection("customers").find({}).toArray()
-  // await Promise.all(
-  //   customers.map(async (customer) => {
-  //     await CustomerModel.create({
-  //       first_name: customer.customerName,
-  //       phone: customer.contact,
-  //       address_one: customer.address,
-  //       created_by: "617fcf3b683f8e0ee84d3310",
-  //       role: "customer",
-  //       balance: {
-  //         value: customer.remaining,
-  //       },
-  //     })
-  //   })
-  // )
-
   // // Stocks
   // const stocks = await db.collection("stocks").find({}).toArray()
   // await Promise.all(
@@ -71,6 +54,135 @@ module.exports = async function (req, res) {
   //       category: category._id,
   //       created_by: "617fcf3b683f8e0ee84d3310",
   //     })
+  //   })
+  // )
+
+  // // Customers
+  // const customers = await db.collection("customers").find({}).toArray()
+  // await Promise.all(
+  //   customers.map(async (cust) => {
+  //     const customer = await CustomerModel.create({
+  //       role: "customer",
+  //       phone: cust.contact,
+  //       address_one: cust.address,
+  //       first_name: cust.customerName,
+  //       created_by: "617fcf3b683f8e0ee84d3310",
+  //       balance: {
+  //         value: cust.remaining,
+  //       },
+  //     })
+
+  //     let totalPaid = 0
+  //     const orders = cust.data.reduce((result, current) => {
+  //       if (current.itemCode) {
+  //         totalPaid += current.total
+  //         return result
+  //       }
+
+  //       const orderIndex = result.findIndex(
+  //         (e) => e.order_id === current.invoice_id
+  //       )
+
+  //       //   if not found
+  //       if (orderIndex === -1) {
+  //         const key = generateId()
+  //         if (
+  //           current.id &&
+  //           current.name &&
+  //           current.cost &&
+  //           current.price &&
+  //           current.quantity
+  //         ) {
+  //           result.push({
+  //             type: "cash",
+  //             status: "active",
+  //             created_for: customer._id,
+  //             order_id: current.invoice_id || result.length + 1,
+  //             total_price: current.totalCost,
+  //             display_id: current.invoice_id || key,
+  //             created_by: "617fcf3b683f8e0ee84d3310",
+  //             stocks: [
+  //               {
+  //                 stock_id: current.id,
+  //                 stock_name: current.name,
+  //                 cost_price: current.cost,
+  //                 sale_price: current.price,
+  //                 quantity: current.quantity,
+  //                 discount: {
+  //                   type: "percentage",
+  //                   value: current.disc,
+  //                 },
+  //               },
+  //             ],
+  //           })
+  //         }
+  //       } else {
+  //         if (
+  //           current.id &&
+  //           current.name &&
+  //           current.cost &&
+  //           current.price &&
+  //           current.quantity
+  //         ) {
+  //           // if found
+  //           result[orderIndex].total_price += current.totalCost
+  //           result[orderIndex].stocks.push({
+  //             stock_id: current.id,
+  //             stock_name: current.name,
+  //             cost_price: current.cost,
+  //             sale_price: current.price,
+  //             quantity: current.quantity,
+  //             discount: {
+  //               type: "percentage",
+  //               value: current.disc,
+  //             },
+  //           })
+  //         }
+  //       }
+
+  //       return result
+  //     }, [])
+
+  //     await Promise.all(
+  //       orders.map(async (order) => {
+  //         if (isNaN(order.total_price)) {
+  //           console.log("order", order)
+  //           order.total_price = 0
+  //         }
+
+  //         if (totalPaid > 0) {
+  //           let price = totalPaid - order.total_price
+  //           if (price > 0) {
+  //             totalPaid -= order.total_price
+  //             order.paid = true
+  //             order.payments = [
+  //               {
+  //                 unit: "PKR",
+  //                 installment: 1,
+  //                 value: order.total_price,
+  //               },
+  //             ]
+  //           }
+  //         }
+
+  //         // Stocks
+  //         order.stocks = await Promise.all(
+  //           order.stocks.map(async (stock) => {
+  //             let stockF = await StockModel.findOne({
+  //               $or: [
+  //                 { _id: ObjectId(stock.stock_id) },
+  //                 { description: stock.stock_name },
+  //               ],
+  //             }).lean()
+
+  //             stock.stock_id = stockF ? stockF._id : "618baf8414d8132b1cfa7866"
+  //             return stock
+  //           })
+  //         )
+
+  //         await OrderModel.create(order)
+  //       })
+  //     )
   //   })
   // )
 

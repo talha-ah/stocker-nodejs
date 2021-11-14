@@ -105,6 +105,10 @@ const MSchema = new Schema(
           type: Number,
           default: 1,
         },
+        message: {
+          type: String,
+          default: "",
+        },
         value: {
           type: Number,
           default: 0,

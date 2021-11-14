@@ -50,11 +50,11 @@ const schemas = {
               "string.empty": errors.orderQuantityRequired,
               "any.required": errors.orderQuantityRequired,
             }),
-            price: Joi.number().required().messages({
+            price: Joi.number().precision(2).required().messages({
               "string.empty": errors.orderPriceRequired,
               "any.required": errors.orderPriceRequired,
             }),
-            discount: Joi.number().required().messages({
+            discount: Joi.number().precision(2).required().messages({
               "string.empty": errors.orderDiscountRequired,
               "any.required": errors.orderDiscountRequired,
             }),
@@ -80,14 +80,26 @@ const schemas = {
           "string.empty": errors.orderPaymentTypeRequired,
           "any.required": errors.orderPaymentTypeRequired,
         }),
-      installments: Joi.number().when("type", {
-        is: "cash",
-        then: Joi.number().default(1).min(1).optional().messages({}),
-        otherwise: Joi.number().default(1).min(1).required().messages({
-          "number.min": errors.orderPaymentInstallmentsRequired,
-          "any.required": errors.orderPaymentInstallmentsRequired,
+      installments: Joi.number()
+        .precision(2)
+        .when("type", {
+          is: "cash",
+          then: Joi.number()
+            .precision(2)
+            .default(1)
+            .min(1)
+            .optional()
+            .messages({}),
+          otherwise: Joi.number()
+            .precision(2)
+            .default(1)
+            .min(1)
+            .required()
+            .messages({
+              "number.min": errors.orderPaymentInstallmentsRequired,
+              "any.required": errors.orderPaymentInstallmentsRequired,
+            }),
         }),
-      }),
       status: Joi.string()
         .default("active")
         .valid("quotation", "active")
@@ -142,7 +154,7 @@ const schemas = {
         "string.empty": errors.orderIdRequired,
         "any.required": errors.orderIdRequired,
       }),
-      value: Joi.number().min(1).required().messages({
+      value: Joi.number().precision(2).min(1).required().messages({
         "number.min": errors.orderPaymentRequired,
         "any.required": errors.orderPaymentRequired,
       }),
@@ -169,7 +181,7 @@ const schemas = {
         "string.empty": errors.customerIdRequired,
         "any.required": errors.customerIdRequired,
       }),
-      value: Joi.number().min(1).required().messages({
+      value: Joi.number().precision(2).min(1).required().messages({
         "number.min": errors.orderPaymentRequired,
         "any.required": errors.orderPaymentRequired,
       }),
