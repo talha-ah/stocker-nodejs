@@ -1,10 +1,10 @@
-const MongoClient = require("mongodb").MongoClient
 const ObjectId = require("mongodb").ObjectId
+const MongoClient = require("mongodb").MongoClient
 
-const CategoryModel = require("./app/categories/models")
-const CustomerModel = require("./app/users/models")
 const StockModel = require("./app/stocks/models")
 const OrderModel = require("./app/orders/models")
+const CustomerModel = require("./app/users/models")
+const CategoryModel = require("./app/categories/models")
 
 const { generateId } = require("./utils/helpers")
 
@@ -12,11 +12,62 @@ const url = process.env.DB2
 
 function connectDB() {
   return new Promise((resolve, reject) => {
-    MongoClient.connect(url, function (err, client) {
-      if (err) reject(err)
-      resolve(client)
-    })
+    MongoClient.connect(
+      url,
+      { useUnifiedTopology: true },
+      function (err, client) {
+        if (err) reject(err)
+        resolve(client)
+      }
+    )
   })
+}
+
+const handlePayments = (paymentsArray, price, subtractor = 0) => {
+  if (paymentsArray.length > 0 && paymentsArray[0].value > 0) {
+    let valueLeft = paymentsArray[0].value - price
+    if (valueLeft > 0) {
+      paymentsArray[0].value -= price
+      const createdAt = paymentsArray[0].createdAt
+      return {
+        createdAt,
+        paid: true,
+        paymentsArray,
+        value: price + subtractor,
+      }
+    } else if (valueLeft === 0) {
+      const createdAt = paymentsArray[0].createdAt
+      paymentsArray.splice(0, 1)
+      return {
+        createdAt,
+        paid: true,
+        paymentsArray,
+        value: price + subtractor,
+      }
+    } else {
+      if (paymentsArray.length === 1) {
+        valueLeft = paymentsArray[0].value
+        const createdAt = paymentsArray[0].createdAt
+        return {
+          createdAt,
+          paid: false,
+          paymentsArray: [],
+          value: valueLeft + subtractor,
+        }
+      } else {
+        valueLeft = paymentsArray[0].value
+        paymentsArray.splice(0, 1)
+
+        return handlePayments(
+          paymentsArray,
+          price - valueLeft,
+          valueLeft + subtractor
+        )
+      }
+    }
+  } else {
+    return null
+  }
 }
 
 module.exports = async function (req, res) {
@@ -24,13 +75,19 @@ module.exports = async function (req, res) {
   const db = client.db("stock_management_system")
 
   // // Categories
-  // const categories = db.collection("categories").find({}).toArray()
+  // const categories = await db.collection("categories").find({}).toArray()
   // await Promise.all(
   //   categories.map(async (category) => {
-  //     await CategoryModel.create({
-  //       name: category.name,
-  //       created_by: "617fcf3b683f8e0ee84d3310",
-  //     })
+  //     await CategoryModel.findOneAndUpdate(
+  //       {
+  //         name: category.name,
+  //         created_by: "617fcf3b683f8e0ee84d3310",
+  //       },
+  //       {
+  //         $setOnInsert: { timestamp: Date.now() },
+  //       },
+  //       { upsert: true }
+  //     )
   //   })
   // )
 
@@ -43,17 +100,23 @@ module.exports = async function (req, res) {
   //       name: stock.category,
   //     }).lean()
 
-  //     await StockModel.create({
-  //       sr: index + 1,
-  //       cost_price: stock.costPrice,
-  //       sale_price: stock.salePrice,
-  //       inventory: stock.stockQuantity,
-  //       location: stock.rackNumber,
-  //       code: stock.itemCode,
-  //       description: stock.name,
-  //       category: category._id,
-  //       created_by: "617fcf3b683f8e0ee84d3310",
-  //     })
+  //     await StockModel.findOneAndUpdate(
+  //       {
+  //         sr: index + 1,
+  //         cost_price: stock.costPrice,
+  //         sale_price: stock.salePrice,
+  //         inventory: stock.stockQuantity,
+  //         location: stock.rackNumber,
+  //         code: stock.itemCode,
+  //         description: stock.name,
+  //         category: category._id,
+  //         created_by: "617fcf3b683f8e0ee84d3310",
+  //       },
+  //       {
+  //         $setOnInsert: { timestamp: Date.now() },
+  //       },
+  //       { upsert: true }
+  //     )
   //   })
   // )
 
@@ -61,28 +124,54 @@ module.exports = async function (req, res) {
   // const customers = await db.collection("customers").find({}).toArray()
   // await Promise.all(
   //   customers.map(async (cust) => {
-  //     const customer = await CustomerModel.create({
-  //       role: "customer",
-  //       phone: cust.contact,
-  //       address_one: cust.address,
-  //       first_name: cust.customerName,
-  //       created_by: "617fcf3b683f8e0ee84d3310",
-  //       balance: {
-  //         value: cust.remaining,
+  //     const customerId = ObjectId()
+  //     let customer = await CustomerModel.findOneAndUpdate(
+  //       {
+  //         role: "customer",
+  //         phone: cust.contact,
+  //         address_one: cust.address,
+  //         first_name: cust.customerName,
+  //         created_by: "617fcf3b683f8e0ee84d3310",
+  //         balance: {
+  // unit: "PKR",
+  //           value: cust.remaining,
+  //         },
   //       },
-  //     })
+  //       {
+  //         $setOnInsert: { _id: customerId, timestamp: Date.now() },
+  //       },
+  //       { upsert: true }
+  //     )
 
-  //     let totalPaid = 0
+  //     if (!customer) {
+  //       customer = {
+  //         _id: customerId,
+  //         role: "customer",
+  //         phone: cust.contact,
+  //         address_one: cust.address,
+  //         first_name: cust.customerName,
+  //         created_by: "617fcf3b683f8e0ee84d3310",
+  //         balance: {
+  //           value: cust.remaining,
+  //         },
+  //       }
+  //     }
+
+  //     let payments = []
   //     const orders = cust.data.reduce((result, current) => {
-  //       if (current.itemCode) {
-  //         totalPaid += current.total
+  //       if (
+  //         current.quantity === undefined &&
+  //         current.discounted === undefined
+  //       ) {
+  //         payments.push({
+  //           value: current.total,
+  //           createdAt: new Date(current.date * 1000),
+  //         })
   //         return result
   //       }
-
   //       const orderIndex = result.findIndex(
   //         (e) => e.order_id === current.invoice_id
   //       )
-
   //       //   if not found
   //       if (orderIndex === -1) {
   //         const key = generateId()
@@ -97,10 +186,12 @@ module.exports = async function (req, res) {
   //             type: "cash",
   //             status: "active",
   //             created_for: customer._id,
-  //             order_id: current.invoice_id || result.length + 1,
-  //             total_price: current.totalCost,
+  //             total_price: current.total,
   //             display_id: current.invoice_id || key,
   //             created_by: "617fcf3b683f8e0ee84d3310",
+  //             createdAt: new Date(current.date * 1000),
+  //             updatedAt: new Date(current.date * 1000),
+  //             order_id: current.invoice_id || result.length + 1,
   //             stocks: [
   //               {
   //                 stock_id: current.id,
@@ -108,6 +199,7 @@ module.exports = async function (req, res) {
   //                 cost_price: current.cost,
   //                 sale_price: current.price,
   //                 quantity: current.quantity,
+  //                 total_price: current.total,
   //                 discount: {
   //                   type: "percentage",
   //                   value: current.disc,
@@ -125,13 +217,14 @@ module.exports = async function (req, res) {
   //           current.quantity
   //         ) {
   //           // if found
-  //           result[orderIndex].total_price += current.totalCost
+  //           result[orderIndex].total_price += current.total
   //           result[orderIndex].stocks.push({
   //             stock_id: current.id,
   //             stock_name: current.name,
   //             cost_price: current.cost,
   //             sale_price: current.price,
   //             quantity: current.quantity,
+  //             total_price: current.total,
   //             discount: {
   //               type: "percentage",
   //               value: current.disc,
@@ -139,32 +232,23 @@ module.exports = async function (req, res) {
   //           })
   //         }
   //       }
-
   //       return result
   //     }, [])
-
   //     await Promise.all(
   //       orders.map(async (order) => {
-  //         if (isNaN(order.total_price)) {
-  //           console.log("order", order)
-  //           order.total_price = 0
+  //         if (isNaN(order.total_price)) order.total_price = 0
+  //         const pay = handlePayments(payments, order.total_price)
+  //         if (pay) {
+  //           payments = [...pay.paymentsArray]
+  //           order.paid = pay.paid
+  //           order.payments = [
+  //             {
+  //               unit: "PKR",
+  //               installment: 1,
+  //               value: pay.value,
+  //             },
+  //           ]
   //         }
-
-  //         if (totalPaid > 0) {
-  //           let price = totalPaid - order.total_price
-  //           if (price > 0) {
-  //             totalPaid -= order.total_price
-  //             order.paid = true
-  //             order.payments = [
-  //               {
-  //                 unit: "PKR",
-  //                 installment: 1,
-  //                 value: order.total_price,
-  //               },
-  //             ]
-  //           }
-  //         }
-
   //         // Stocks
   //         order.stocks = await Promise.all(
   //           order.stocks.map(async (stock) => {
@@ -174,12 +258,10 @@ module.exports = async function (req, res) {
   //                 { description: stock.stock_name },
   //               ],
   //             }).lean()
-
   //             stock.stock_id = stockF ? stockF._id : "618baf8414d8132b1cfa7866"
   //             return stock
   //           })
   //         )
-
   //         await OrderModel.create(order)
   //       })
   //     )
@@ -267,3 +349,5 @@ module.exports = async function (req, res) {
 
   res.send("DONE")
 }
+
+// {"_id":{"$oid":"617fcf3b683f8e0ee84d3310"},"balance":{"value":0,"unit":"PKR"},"role":"user","status":"active","first_name":"Awais","last_name":"User","email":"awais@gmail.com","password":"$2a$10$Q/2eB.28B1HgmjQpHUlGg.ZMNfIUu70wNRQ5z0Ass4M5Qq3djQ6.S","createdAt":{"$date":"2021-11-01T11:27:55.284Z"},"updatedAt":{"$date":"2021-11-01T11:27:55.284Z"}}
