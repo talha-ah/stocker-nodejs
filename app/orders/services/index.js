@@ -13,7 +13,7 @@ class Service {
       {
         $match: {
           created_by: ObjectId(data.userId),
-          status: data.status || { $ne: "quotation" },
+          status: data.status || { $nin: ["quotation", "canceled"] },
         },
       },
       {
@@ -447,7 +447,7 @@ class Service {
       { _id: ObjectId(data.id), created_by: ObjectId(data.userId) },
       {
         $set: {
-          status: "cancelled",
+          status: "canceled",
         },
       }
     )

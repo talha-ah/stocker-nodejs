@@ -131,7 +131,7 @@ const MSchema = new Schema(
     status: {
       type: String,
       default: "quotation",
-      enum: ["quotation", "active", "shipped", "cancelled", "fulfilled"],
+      enum: ["quotation", "active", "shipped", "canceled", "fulfilled"],
     },
     metadata: {
       type: Object,

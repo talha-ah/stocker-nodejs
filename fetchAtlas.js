@@ -6,6 +6,8 @@ const OrderModel = require("./app/orders/models")
 const CustomerModel = require("./app/users/models")
 const CategoryModel = require("./app/categories/models")
 
+const { generateId } = require("./utils/helpers")
+
 const url = process.env.MONGODB_URI_2
 
 function connectDB() {
@@ -178,10 +180,10 @@ module.exports = async function (req, res) {
               created_for: customer._id,
               total_price: current.total,
               order_id: current.invoice_id,
-              display_id: current.invoice_id,
               created_by: "617fcf3b683f8e0ee84d3310",
               createdAt: new Date(current.date * 1000),
               updatedAt: new Date(current.date * 1000),
+              display_id: current.invoice_id || generateId(),
               stocks: [
                 {
                   stock_id: current.id,
@@ -319,7 +321,7 @@ module.exports = async function (req, res) {
         total_price: totalPrice,
         created_for: customer._id,
         order_id: order.invoice_num,
-        display_id: order.invoice_num,
+        display_id: order.invoice_num || generateId(),
         created_by: "617fcf3b683f8e0ee84d3310",
         payments: [
           {
