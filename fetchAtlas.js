@@ -6,8 +6,6 @@ const OrderModel = require("./app/orders/models")
 const CustomerModel = require("./app/users/models")
 const CategoryModel = require("./app/categories/models")
 
-const { generateId } = require("./utils/helpers")
-
 const url = process.env.MONGODB_URI_2
 
 function connectDB() {
@@ -132,18 +130,20 @@ module.exports = async function (req, res) {
     customers.map(async (cust) => {
       let customer = await CustomerModel.findOneAndUpdate(
         {
-          role: "customer",
-          phone: cust.contact,
-          address_one: cust.address,
           first_name: cust.customerName,
-          created_by: "617fcf3b683f8e0ee84d3310",
-          balance: {
-            unit: "PKR",
-            value: cust.remaining,
-          },
         },
         {
-          $setOnInsert: { timestamp: Date.now() },
+          $setOnInsert: {
+            role: "customer",
+            phone: cust.contact,
+            timestamp: Date.now(),
+            address_one: cust.address,
+            created_by: "617fcf3b683f8e0ee84d3310",
+            balance: {
+              unit: "PKR",
+              value: cust.remaining || 0,
+            },
+          },
         },
         { upsert: true, new: true }
       )
@@ -165,7 +165,6 @@ module.exports = async function (req, res) {
         )
         //   if not found
         if (orderIndex === -1) {
-          const key = generateId()
           if (
             current.id &&
             current.name &&
@@ -274,7 +273,12 @@ module.exports = async function (req, res) {
         {
           $set: {
             role: "customer",
+            timestamp: Date.now(),
             created_by: "617fcf3b683f8e0ee84d3310",
+            balance: {
+              value: 0,
+              unit: "PKR",
+            },
           },
         },
         {
