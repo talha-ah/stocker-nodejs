@@ -45,6 +45,17 @@ class Contoller {
     res.status(200).json(CustomResponse(texts.orders, response))
   }
 
+  async cancelOne(req, res) {
+    const data = await Validations.checkId({
+      userId: req.userId,
+      ...req.params,
+    })
+
+    const response = await Service.cancelOne(data)
+
+    res.status(201).json(CustomResponse(texts.orders, response))
+  }
+
   async addPayment(req, res) {
     const data = await Validations.addPayment({
       userId: req.userId,
@@ -53,6 +64,18 @@ class Contoller {
     })
 
     const response = await Service.addPayment(data)
+
+    res.status(200).json(CustomResponse(texts.orders, response))
+  }
+
+  async updateQuotation(req, res) {
+    const data = await Validations.updateQuotation({
+      userId: req.userId,
+      ...req.params,
+      ...req.body,
+    })
+
+    const response = await Service.updateQuotation(data)
 
     res.status(200).json(CustomResponse(texts.orders, response))
   }
@@ -66,17 +89,6 @@ class Contoller {
     const response = await Service.addGeneralPayment(data)
 
     res.status(200).json(CustomResponse(texts.orders, response))
-  }
-
-  async cancelOne(req, res) {
-    const data = await Validations.checkId({
-      userId: req.userId,
-      ...req.params,
-    })
-
-    const response = await Service.cancelOne(data)
-
-    res.status(201).json(CustomResponse(texts.orders, response))
   }
 }
 

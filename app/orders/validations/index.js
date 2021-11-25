@@ -36,6 +36,36 @@ const schemas = {
         "string.empty": errors.orderDisplayIdRequired,
         "any.required": errors.orderDisplayIdRequired,
       }),
+      type: Joi.string()
+        .default("cash")
+        .valid("cash", "installments")
+        .required()
+        .messages({
+          "any.only": errors.orderPaymentTypeValid,
+          "string.empty": errors.orderPaymentTypeRequired,
+          "any.required": errors.orderPaymentTypeRequired,
+        }),
+      installments: Joi.number().when("type", {
+        is: "cash",
+        then: Joi.number().default(1).min(1).optional(),
+        otherwise: Joi.number().default(1).min(1).required().messages({
+          "number.min": errors.orderPaymentInstallmentsRequired,
+          "any.required": errors.orderPaymentInstallmentsRequired,
+        }),
+      }),
+      status: Joi.string()
+        .default("active")
+        .valid("quotation", "active")
+        .optional()
+        .messages({
+          "any.only": errors.orderStatusQuotationValid,
+        }),
+      address_one: Joi.string().default("").optional().allow(""),
+      address_two: Joi.string().default("").optional().allow(""),
+      postal_code: Joi.string().default("").optional().allow(""),
+      city: Joi.string().default("").optional().allow(""),
+      state: Joi.string().default("").optional().allow(""),
+      country: Joi.string().default("").optional().allow(""),
       stocks: Joi.array()
         .min(1)
         .required()
@@ -71,48 +101,6 @@ const schemas = {
           "array.min": `At least {#limit} stock is required`,
           "any.required": `At least {#limit} stock is required`,
         }),
-      type: Joi.string()
-        .default("cash")
-        .valid("cash", "installments")
-        .required()
-        .messages({
-          "any.only": errors.orderPaymentTypeValid,
-          "string.empty": errors.orderPaymentTypeRequired,
-          "any.required": errors.orderPaymentTypeRequired,
-        }),
-      installments: Joi.number()
-        .precision(2)
-        .when("type", {
-          is: "cash",
-          then: Joi.number()
-            .precision(2)
-            .default(1)
-            .min(1)
-            .optional()
-            .messages({}),
-          otherwise: Joi.number()
-            .precision(2)
-            .default(1)
-            .min(1)
-            .required()
-            .messages({
-              "number.min": errors.orderPaymentInstallmentsRequired,
-              "any.required": errors.orderPaymentInstallmentsRequired,
-            }),
-        }),
-      status: Joi.string()
-        .default("active")
-        .valid("quotation", "active")
-        .optional()
-        .messages({
-          "any.only": errors.orderStatusQuotationValid,
-        }),
-      address_one: Joi.string().optional().allow("").messages({}),
-      address_two: Joi.string().optional().allow("").messages({}),
-      postal_code: Joi.string().optional().allow("").messages({}),
-      city: Joi.string().optional().allow("").messages({}),
-      state: Joi.string().optional().allow("").messages({}),
-      country: Joi.string().optional().allow("").messages({}),
     })
 
     return joiError(Validation.validate(data))
@@ -164,6 +152,80 @@ const schemas = {
         .optional()
         .messages({
           "any.only": errors.orderPaymentTypeRequired,
+        }),
+    })
+
+    return joiError(Validation.validate(data))
+  },
+  updateQuotation: (data) => {
+    const Validation = Joi.object().keys({
+      userId: Joi.string().length(24).required().messages({
+        "string.length": errors.userIdLength,
+        "string.empty": errors.userIdRequired,
+        "any.required": errors.userIdRequired,
+      }),
+      id: Joi.string().length(24).required().messages({
+        "string.length": errors.quotationIdLength,
+        "string.empty": errors.quotationIdRequired,
+        "any.required": errors.quotationIdRequired,
+      }),
+      type: Joi.string()
+        .default("cash")
+        .valid("cash", "installments")
+        .required()
+        .messages({
+          "any.only": errors.orderPaymentTypeValid,
+          "string.empty": errors.orderPaymentTypeRequired,
+          "any.required": errors.orderPaymentTypeRequired,
+        }),
+      installments: Joi.number().when("type", {
+        is: "cash",
+        then: Joi.number().default(1).min(1).optional(),
+        otherwise: Joi.number().default(1).min(1).required().messages({
+          "number.min": errors.orderPaymentInstallmentsRequired,
+          "any.required": errors.orderPaymentInstallmentsRequired,
+        }),
+      }),
+      address_one: Joi.string().default("").optional().allow(""),
+      address_two: Joi.string().default("").optional().allow(""),
+      postal_code: Joi.string().default("").optional().allow(""),
+      city: Joi.string().default("").optional().allow(""),
+      state: Joi.string().default("").optional().allow(""),
+      country: Joi.string().default("").optional().allow(""),
+      stocks: Joi.array()
+        .min(1)
+        .required()
+        .items(
+          Joi.object().keys({
+            stock_id: Joi.string().length(24).required().messages({
+              "string.length": errors.stockIdLength,
+              "string.empty": errors.stockIdRequired,
+              "any.required": errors.stockIdRequired,
+            }),
+            quantity: Joi.number().required().messages({
+              "string.empty": errors.orderQuantityRequired,
+              "any.required": errors.orderQuantityRequired,
+            }),
+            price: Joi.number().precision(2).required().messages({
+              "string.empty": errors.orderPriceRequired,
+              "any.required": errors.orderPriceRequired,
+            }),
+            discount: Joi.number().precision(2).required().messages({
+              "string.empty": errors.orderDiscountRequired,
+              "any.required": errors.orderDiscountRequired,
+            }),
+            discount_type: Joi.string()
+              .default("percentage")
+              .valid("percentage", "fixed")
+              .optional()
+              .messages({
+                "any.only": errors.orderDiscountTypeValid,
+              }),
+          })
+        )
+        .messages({
+          "array.min": `At least {#limit} stock is required`,
+          "any.required": `At least {#limit} stock is required`,
         }),
     })
 

@@ -81,10 +81,69 @@ class Service {
   }
 
   async getOne(data) {
-    const response = await Model.findById(data.id).lean()
+    const response = await Model.aggregate([
+      {
+        $match: {
+          _id: ObjectId(data.id),
+        },
+      },
+      {
+        $lookup: {
+          from: UserModel.collection.name,
+          localField: "created_for",
+          foreignField: "_id",
+          as: "created_for",
+        },
+      },
+      {
+        $lookup: {
+          from: StockModel.collection.name,
+          localField: "stocks.stock_id",
+          foreignField: "_id",
+          as: "stocksLookup",
+        },
+      },
+      {
+        $addFields: {
+          created_for: { $first: "$created_for" },
+          balance: {
+            $subtract: ["$total_price", { $sum: "$payments.value" }],
+          },
+          stocks: {
+            $map: {
+              input: "$stocks",
+              as: "stock",
+              in: {
+                $mergeObjects: [
+                  "$$stock",
+                  {
+                    stock_id: {
+                      $arrayElemAt: [
+                        "$stocksLookup",
+                        {
+                          $indexOfArray: [
+                            "$stocksLookup._id",
+                            "$$stock.stock_id",
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          stocksLookup: 0,
+        },
+      },
+    ])
 
-    if (!response) throw new CustomError(errors.orderNotFound, 404)
-    return response
+    if (!response[0]) throw new CustomError(errors.orderNotFound, 404)
+    return response[0]
   }
 
   async createOne(data) {
@@ -305,6 +364,20 @@ class Service {
     return
   }
 
+  async cancelOne(data) {
+    const response = await Model.findOneAndUpdate(
+      { _id: ObjectId(data.id), created_by: ObjectId(data.userId) },
+      {
+        $set: {
+          status: "canceled",
+        },
+      }
+    )
+
+    if (!response) throw new CustomError(errors.orderNotFound, 404)
+    return
+  }
+
   async addPayment(data) {
     const order = await Model.findOne({
       _id: ObjectId(data.id),
@@ -352,6 +425,67 @@ class Service {
         "balance.value": -data.value,
       },
     })
+
+    return response
+  }
+
+  async updateQuotation(data) {
+    const order = await Model.findOne({
+      _id: ObjectId(data.id),
+      created_by: ObjectId(data.userId),
+    })
+      .populate("stocks.stock_id")
+      .lean()
+
+    if (!order) throw new CustomError(errors.orderNotFound, 404)
+    if (order.status !== "quotation")
+      throw new CustomError(errors.actionNotAllowed, 404)
+
+    data.shipping_address = { ...data }
+
+    let totalPrice = 0
+
+    const stocks = await Promise.all(
+      data.stocks.map(async (stock) => {
+        const st = await StockModel.findById(stock.stock_id).lean()
+        if (!st) throw new CustomError(errors.stockNotFound, 404)
+
+        if (
+          stock.discount_type === "percentage" &&
+          stock.discount &&
+          stock.discount > 0
+        ) {
+          let price = stock.price * stock.quantity
+          let discount = (price * stock.discount) / 100
+          totalPrice += price - discount
+        } else {
+          let price = stock.price * stock.quantity
+          price = price - stock.discount
+          totalPrice += price
+        }
+
+        return {
+          stock_id: stock.stock_id,
+          quantity: stock.quantity,
+          cost_price: st.cost_price,
+          sale_price: stock.price,
+          discount: {
+            type: stock.discount_type,
+            value: stock.discount,
+          },
+        }
+      })
+    )
+
+    data.stocks = stocks
+    data.total_price = totalPrice
+
+    let response = await Model.findByIdAndUpdate(data.id, {
+      $set: data,
+    }).lean()
+    if (!response) throw new CustomError(errors.error, 404)
+
+    response = await this.getOne(data)
 
     return response
   }
@@ -440,20 +574,6 @@ class Service {
     })
 
     return payments
-  }
-
-  async cancelOne(data) {
-    const response = await Model.findOneAndUpdate(
-      { _id: ObjectId(data.id), created_by: ObjectId(data.userId) },
-      {
-        $set: {
-          status: "canceled",
-        },
-      }
-    )
-
-    if (!response) throw new CustomError(errors.orderNotFound, 404)
-    return
   }
 }
 

@@ -1,4 +1,5 @@
 const errors = {
+  actionNotAllowed: "Action not allowed",
   error: "There was an error!",
   firstNameRequired: "First name is required",
   lastNameRequired: "Last name is required",
@@ -56,6 +57,8 @@ const errors = {
   orderNotFound: "Order not found",
   orderIdRequired: "Order ID is required",
   orderIdLength: "Order ID should be 24 characters",
+  quotationIdRequired: "Quotation ID is required",
+  quotationIdLength: "Quotation ID should be 24 characters",
   orderCreatedForLength: "Customer ID should be 24 characters",
   orderCreatedForRequired: "Customer is required",
   orderDisplayIdRequired: "Display Id is required",
