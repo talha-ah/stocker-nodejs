@@ -102,9 +102,16 @@ module.exports = async function (req, res) {
   await Promise.all(
     stocks.map(async (stock, index) => {
       // Category
-      const category = await CategoryModel.findOne({
-        name: stock.category,
-      }).lean()
+      const category = await CategoryModel.findOneAndUpdate(
+        {
+          name: stock.category,
+          created_by: "617fcf3b683f8e0ee84d3310",
+        },
+        {
+          $setOnInsert: { timestamp: Date.now() },
+        },
+        { upsert: true, new: true }
+      )
 
       await StockModel.findOneAndUpdate(
         {
