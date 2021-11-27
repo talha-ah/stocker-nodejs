@@ -101,35 +101,37 @@ module.exports = async function (req, res) {
   const stocks = await db.collection("stocks").find({}).toArray()
   await Promise.all(
     stocks.map(async (stock, index) => {
-      // Category
-      const category = await CategoryModel.findOneAndUpdate(
-        {
-          name: stock.category,
-          created_by: "617fcf3b683f8e0ee84d3310",
-        },
-        {
-          $setOnInsert: { timestamp: Date.now() },
-        },
-        { upsert: true, new: true }
-      )
+      if (stock.name && stock.costPrice && stock.salePrice && stock.category) {
+        // Category
+        const category = await CategoryModel.findOneAndUpdate(
+          {
+            name: stock.category,
+            created_by: "617fcf3b683f8e0ee84d3310",
+          },
+          {
+            $setOnInsert: { timestamp: Date.now() },
+          },
+          { upsert: true, new: true }
+        )
 
-      await StockModel.findOneAndUpdate(
-        {
-          sr: index + 1,
-          cost_price: stock.costPrice,
-          sale_price: stock.salePrice,
-          inventory: stock.stockQuantity,
-          location: stock.rackNumber,
-          code: stock.itemCode,
-          description: stock.name,
-          category: category._id,
-          created_by: "617fcf3b683f8e0ee84d3310",
-        },
-        {
-          $setOnInsert: { timestamp: Date.now() },
-        },
-        { upsert: true }
-      )
+        await StockModel.findOneAndUpdate(
+          {
+            sr: index + 1,
+            cost_price: stock.costPrice,
+            sale_price: stock.salePrice,
+            inventory: stock.stockQuantity,
+            location: stock.rackNumber,
+            code: stock.itemCode,
+            description: stock.name,
+            category: category._id,
+            created_by: "617fcf3b683f8e0ee84d3310",
+          },
+          {
+            $setOnInsert: { timestamp: Date.now() },
+          },
+          { upsert: true }
+        )
+      }
     })
   )
 
